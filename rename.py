@@ -2,6 +2,7 @@ import argparse, os, glob
 
 def main():
     cmdLineParse()
+    
 
 def cmdLineParse():
     '''cmd line argument parser '''
@@ -47,7 +48,9 @@ def cmdLineParse():
     args = parser.parse_args()
 
     runoptions(args)
-    filesys(args)
+    f = filesys(args)
+
+    print( f )
 
 def runoptions(args):
     '''runs cmd line options given by the user'''
@@ -89,15 +92,23 @@ def filesys(args):
     '''searches the directory for files that will be changed'''
     print("\ncwd:", os.getcwd())
 
+    #initilise files
     files = args.filename
+   
     for s in files:
         for filename in glob.glob(s):
             print( filename, end = ' ' )    
 
     print( '\n' )
+
+    return files
+
 def regexparse():
     '''handles regex expressions'''
 
+
+def countstring(files, count):
+    ''' count string operation. renames files with replacing ## with numbers. i.e ## is 01, 02...'''
 
 if __name__=='__main__':
     main()
