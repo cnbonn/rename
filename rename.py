@@ -1,7 +1,11 @@
-import argparse
+import argparse, os
+
+def main():
+    cmdLineParse()
+    filesys()
 
 def cmdLineParse():
-'''cmd line argument parser '''
+    '''cmd line argument parser '''
     #parse description
     parser = argparse.ArgumentParser(description="file rename application")
 
@@ -41,19 +45,53 @@ def cmdLineParse():
 
     args = parser.parse_args()
 
+    runoptions(args)
+    
+
+def runoptions(args):
+    '''runs cmd line options given by the user'''
 
     if args.lower:
         print ("lower")
     elif args.upper:
         print ("upper")
-    else:
-        print (none)
+
+    if args.print:
+        print ("print")
+    elif args.verbose:
+        print ("verbose")
+    elif args.interactive:
+        print ("interactive")
+
+    if args.trim:
+        trimval = args.trim
+        print ("trim", trimval)
+
+    if args.replace:
+        replaceval = args.replace
+        print ("replace", replaceval)
+
+    if args.number:
+        numberval = args.number
+        print ("number",  numberval)
+
+
+    print( " ****************************" )
+
+    for arg in vars(args):
+        print (arg, getattr(args,arg))
+
+    print( "*****************************")
+
+   
+def filesys():
+    '''searches the directory for files that will be changed'''
+    print("\n", os.getcwd())
     
-    nb = args.trim #parser.parse_args()
-    print(nb)
-    
-    ns = args.filename #parser.parse_args()
-    print(ns)
+
+def regexparse():
+    '''handles regex expressions'''
+
 
 if __name__=='__main__':
-    cmdLineParse();
+    main()
