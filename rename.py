@@ -47,12 +47,13 @@ def cmdLineParse():
 
     args = parser.parse_args()
 
-    runoptions(args)
-    f = filesys(args)
+    filenames = filesys(args)
+    runoptions(args, filenames)
+    
 
-    print( f )
+    print( filenames )
 
-def runoptions(args):
+def runoptions(args, filenames):
     '''runs cmd line options given by the user'''
 
     if args.lower:
@@ -79,6 +80,9 @@ def runoptions(args):
         numberval = args.number
         print ("number",  numberval)
 
+    if args.delete:
+        deletefile(filenames)
+        print ("delete")
 
     print( " ****************************" )
 
@@ -103,6 +107,17 @@ def filesys(args):
 
     return files
 
+
+def deletefile( filename ):
+    ''' deletes specified file '''
+    for file in filename:
+        os.remove( file )
+
+def renamefile( oldfilename, newfilename):
+    '''renames current file to old file'''
+    
+    os.rename( oldfilename, newfilename)
+    
 def regexparse():
     '''handles regex expressions'''
 
