@@ -83,6 +83,7 @@ def runoptions(args, argorder, filenames):
             countsrting(filenames, newstring, args) 
         elif arg in [ "-dt", "--touch" ]:
             print("touch")
+            touch( filenames )
         elif arg in [ "-D", "--date" ]:
             print("date")
         elif arg in [ "-T", "--time" ]:
@@ -152,7 +153,7 @@ def renamefile( oldfilename, newfilename, args):
     if rename == True:
         os.rename( oldfilename, newfilename)
     
-def printfile( oldfilename, newfilename ):
+def  printfile( oldfilename, newfilename ):
     ''' prints Old filename and new filename'''
     print("Old Filename: ", oldfilename)
     print("New Filename: ", newfilename)
@@ -176,7 +177,16 @@ def countstring(filename, newstring, args):
         newname = re.sub("#"*count, str(num).zfill(count), newstring[0])
         renamefile( files, newname, args)
         num += 1
+
+def modifydate():
+    print("modifydate")
+
+def modifytime():    
+    print("modifytime")
     
-    
+def touch(filename):
+    for files in filename:
+        filetime = os.path.getmtime( files )
+        print(filetime)
 if __name__=='__main__':
     main()

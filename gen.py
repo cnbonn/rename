@@ -3,7 +3,7 @@ import argparse, os, glob
 
 sub = [".txt" , ".os", ".mpp", ".xkcd", ".file"]
 pre = ["man", "bob", "rawr", "snap", "rabble" ]
-required = ["README.md" , "rename.py", "gen.py" , ".git"]
+required = ["__pycache__", "README.md" , "rename.py", "gen.py" , ".git", "rename2.py" , "funcs.py"]
 
 def main():
     cmdLineParse()
