@@ -4,7 +4,12 @@ from funcs import Fileinfo
 
 def main():
     args = cmdLineParse()
-    
+
+    filelist = filesys( args )
+
+    runoptions( args, filelist )
+
+
 def cmdLineParse():
     '''cmaasdfd line argument parser '''
     #parse description
@@ -49,66 +54,44 @@ def cmdLineParse():
     #compile argument list
     args = parser.parse_args()
     
-    argorder = sys.argv
-    
-    arginfo = [ args, argorder]
-    print( arginfo )
-    #get files from directory
-    filenames = filesys(args)
-    #run options
-    #runoptions(args, argorder, filenames)
-    
+    return args    
 
     
-def runoptions(args, argorder, filenames):
+def runoptions(args, filelist):
     '''runs cmd line options given by the user. runs the cmd line arguments
         in the order given by the user'''
     
     #seperate delete case 
     if args.delete:
         print("delete")
-        deletefile(filenames)
+        for files in filelist:
+            files.deletefile()
         return
-
-    #go though argorder and test for cases
-    for arg in argorder:
-        if arg in [ "-l", "--lower"]:
-            print("lower")
-        elif arg in [ "-u", "--upper"]:
-            print("upper")
-        elif arg in [ "-t", "--trim"]:
-            print("trim")
-        elif arg in [ "-r", "--replace" ]:
-            print("replace")
-        elif arg in ["-n", "--number" ]:
-            newstring = args.number
-            print("number", newstring)
-            countsrting(filenames, newstring, args) 
-        elif arg in [ "-dt", "--touch" ]:
-            print("touch")
-            touch( filenames )
-        elif arg in [ "-D", "--date" ]:
-            print("date")
-        elif arg in [ "-T", "--time" ]:
-            print("time")
     
+    for index, files in enumerate(filelist):
+        for arg in sys.argv:
+            if arg in [ "-l", "--lower"]:
+                files.lower()
+            elif arg in [ "-u", "--upper"]:
+                files.upper()
+            elif arg in [ "-t", "--trim"]:
+               # files.trim()
 
-
-
-
-'''
-    print( " *****************************")
+                #need to create increment system                
+                print( "trim: ", args.trim )
+            elif arg in [ "-r", "--replace" ]:
+                files.replace(str(args.replace[0]), str(args.replace[1]))
+            elif arg in ["-n", "--number" ]:
+                files.countstring( str(args.number), index )
+            elif arg in [ "-dt", "--touch" ]:
+                print("touch")
+                files.touch()
+            elif arg in [ "-D", "--date" ]:
+                print("date")
+            elif arg in [ "-T", "--time" ]:
+                print("time")
+        print( "\nindex: ", index, "  file: ", files.oldname)
     
-    print(args)
-
-    print( " ****************************" )
-
-    for arg in vars(args):
-        print (arg, getattr(args,arg))
-
-    print( "*****************************")
-'''
-   
 def filesys(args):
     '''searches the directory for files that will be changed'''
 
@@ -122,27 +105,9 @@ def filesys(args):
             print( filename, end = ' ' )    
             filelist.append( Fileinfo( filename ) )
 
-    print ( "*************files*****************")
-    for files in filelist:
-        print( files.oldname )
-
-    print( "test" )
-    filelist[0].updatedatestamp()
-    print( '\n' )
-
-    return files
+    return filelist
 
 
 
-def regexparse():
-    '''handles regex expressions'''
-
-
-
-    
-def touch(filename):
-    for files in filename:
-        filetime = os.path.getmtime( files )
-        print(filetime)
 if __name__=='__main__':
     main()

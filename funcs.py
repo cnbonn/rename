@@ -13,7 +13,7 @@ class Fileinfo:
         count = str(newstring).count("#")
 
         self.newname = re.sub("#"*count, str(filenum).zfill(count), newstring)
-   
+
     def deletefile( self ):
         os.remove( self.oldname )
 
@@ -24,20 +24,23 @@ class Fileinfo:
         print( "Old Filename: ", self.oldname )
         print( "New Filename: ", self.newname )
 
-    def updatedatestamp( self ):
+    def updatedatestamp( self, stamp ):
         print( "update datestamp" )
 
-    def updatetimestamp( self ):
+    def updatetimestamp( self, stamp ):
         print( "update timestamp" )
 
     def renamefile( self ):
         os.rename( self.oldname, self.newname )
 
-    def replace( self ):
+    def replace( self, oldstring, newstring):
         print( "replace" )
 
     def touch( self ):
         print( "touch" )
+
+    def trim( self, value ):
+        print( "trim" )
 
     def upper( self ):
         self.newname = self.newname.upper()
