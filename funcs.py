@@ -1,4 +1,4 @@
-import os, re, sys
+import os, re, sys, stat, datetime
 
 class Fileinfo:
     '''file class: holds information and performs operations on file
@@ -15,6 +15,7 @@ class Fileinfo:
         self.newname = re.sub("#"*count, str(filenum).zfill(count), newstring)
 
     def deletefile( self ):
+        '''removes file from directory'''
         os.remove( self.oldname )
 
     def lower( self ):
@@ -37,6 +38,17 @@ class Fileinfo:
         print( "replace" )
 
     def touch( self ):
+        ct = datetime.datetime.now()
+        print( "current time: " , ct )
+        
+        #ft = os.path.getmtime( self.oldname )
+        #print( "original", self.oldname, "mod time:", ft, time.strftime( "%m/%d/%Y %H:%M:%s", time.localtime( ft )
+
+        #os.utime( self.oldname, (ct.timestamp(), ct.timestamp() ) )
+
+        #gt = os.stat( self.oldname).st_mtime
+        #print( "updated", self.oldname, "mod time:". gt, datetime.datetime.fromtimestamp( gt) )
+        
         print( "touch" )
 
     def trim( self, value ):
