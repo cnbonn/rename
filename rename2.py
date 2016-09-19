@@ -3,11 +3,14 @@ import argparse, os, glob, re, sys
 from funcs import Fileinfo
 
 def main():
+    '''main function of the program. runs main scripts'''
     args = cmdLineParse()
 
     filelist = filesys( args )
 
     runoptions( args, filelist )
+
+    savefiles( args, filelist )
 
 
 def cmdLineParse():
@@ -91,6 +94,37 @@ def runoptions(args, filelist):
             elif arg in [ "-T", "--time" ]:
                 print("time")
         print( "\nindex: ", index, "  file: ", files.oldname)
+
+def savefiles(args, filelist):
+    ''' goes though the list of files and saves them with there new name.'''
+    #flags
+    verb = False
+    prnt = False
+    inter = False
+    if arg in [ "-v" , "--verbose"]:
+        verb = True
+    elif arg in [ "-p", "--print"]:
+        prnt = True
+    elif arg in [ "-i", "--interactive"]:
+        inter = True
+
+    #go though files and rename 
+    for files in filelist:
+        if verb == True:
+            files.printfile()            
+            files.renamefile()
+        elif prnt == True:
+            file.printfile()
+        elif inter == True:
+            files.printfile()
+            choice = input( "do you want to make this change? (y/n): " )
+                if choice == "y":
+                    files.renamefile()
+                elif choice == "n":
+                    continue
+                else:
+                    print( "invalid choice. please try again " )
+            
     
 def filesys(args):
     '''searches the directory for files that will be changed'''
@@ -99,10 +133,10 @@ def filesys(args):
     files = args.filename
 
     filelist = []
-    
+   
+    #go tough files and save the ones that match the naming convention 
     for s in files:
         for filename in glob.glob(s):
-            print( filename, end = ' ' )    
             filelist.append( Fileinfo( filename ) )
 
     return filelist
