@@ -48,8 +48,8 @@ def cmdLineParse():
     #options that can not occur multiple times
     parser.add_argument("-d", "--delete", action="store_true", help='delete files')
     parser.add_argument("-dt", "--touch", action="store_true", help='\"touch\" files (update date/time stamp to current date/time)')
-    parser.add_argument("-D", "--date", metavar='DDMMYYY', type=int, help='change file datestamps')
-    parser.add_argument("-T", "--time", metavar='HHMMSS', type=int,  help='change file timestamps')
+    parser.add_argument("-D", "--date", metavar='DDMMYYY', type=str, help='change file datestamps')
+    parser.add_argument("-T", "--time", metavar='HHMMSS', type=str,  help='change file timestamps')
 
     #parse options required
     parser.add_argument('filename', nargs='+',   metavar='filename', help='filename(s) to perform operations on')
@@ -90,35 +90,28 @@ def runoptions(args, filelist):
                 print("touch")
                 files.touch()
             elif arg in [ "-D", "--date" ]:
-                print("date")
+                files.updatedatestamp(args.date)
             elif arg in [ "-T", "--time" ]:
+                files.updatetimestamp(args.time)
                 print("time")
-        print( "\nindex: ", index, "  file: ", files.oldname)
+
+
 
 def savefiles(args, filelist):
     ''' goes though the list of files and saves them with there new name.'''
-    #flags
-    verb = False
-    prnt = False
-    inter = False
-    if args in [ "-v" , "--verbose"]:
-        verb = True
-    elif args in [ "-p", "--print"]:
-        prnt = True
-    elif args in [ "-i", "--interactive"]:
-        inter = True
-
     #go though files and rename 
     for files in filelist:
-        if verb == True:
+        if args.verbose:  #verbose
             files.printfile() #print files to screen
             files.renamefile()
-        elif prnt == True:
-            file.printfile() # print files to screen
-        elif inter == True:
-            files.printfile() #print file to screen
+
+        elif args.print:  # print
+            files.printfile() # print files to screen
+
+        elif args.interactive: # interactive
             correct = False;  #set flag to false
             while correct == False:
+                files.printfile() #prints file to screen
                 choice = input( "do you want to make this change? (y/n): " )
                 if choice == 'y':
                     files.renamefile()
@@ -127,6 +120,9 @@ def savefiles(args, filelist):
                     correct = True #set flag to true
                 else:
                     print( "invalid choice. please try again " )
+
+        else:
+            files.renamefile()
             
     
 def filesys(args):
@@ -141,6 +137,10 @@ def filesys(args):
     for s in files:
         for filename in glob.glob(s):
             filelist.append( Fileinfo( filename ) )
+
+    if not filelist:
+        print( "no files matching: " , files , " in directory" )
+        quit()
 
     return filelist
 
