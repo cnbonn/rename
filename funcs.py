@@ -1,14 +1,17 @@
-import os, re, sys, stat, datetime
+import os, re, sys, stat, datetime, time
 
 class Fileinfo:
     '''file class: holds information and performs operations on file
         name to change what the file is called'''
 
     def __init__( self, filename ):
+        ''' initilise file by setting oldname and new name to the file name'''
         self.oldname = filename
         self.newname = filename
 
     def countstring( self, newstring, filenum ):
+        '''renames files in sequence using countstring
+            #'s in count string become numbers'''
         #count number of \# in new string
         count = str(newstring).count("#")
 
@@ -19,37 +22,36 @@ class Fileinfo:
         os.remove( self.oldname )
 
     def lower( self ):
+        ''' converts file to lowercase'''
         self.newname = self.newname.lower()
 
     def printfile( self ):
+        ''' prints the old name and new name of the file'''
         print( "Old Filename: ", self.oldname )
         print( "New Filename: ", self.newname )
 
     def updatedatestamp( self, stamp ):
+        ''' updates the date stame of the file to the user given date'''
         print( "update datestamp" )
 
     def updatetimestamp( self, stamp ):
+        '''updates the timestamp of the file to the user given time'''
         print( "update timestamp" )
 
     def renamefile( self ):
+        ''' renames the file with the given new name'''
         os.rename( self.oldname, self.newname )
 
     def replace( self, oldstring, newstring):
+        '''replaces old strings with new strings given by the user'''
         print( "replace" )
 
     def touch( self ):
+        #get current time
         ct = datetime.datetime.now()
-        print( "current time: " , ct )
-        
-        #ft = os.path.getmtime( self.oldname )
-        #print( "original", self.oldname, "mod time:", ft, time.strftime( "%m/%d/%Y %H:%M:%s", time.localtime( ft )
+        #save current time to file
+        os.utime( self.oldname, (ct.timestamp(), ct.timestamp() ) )
 
-        #os.utime( self.oldname, (ct.timestamp(), ct.timestamp() ) )
-
-        #gt = os.stat( self.oldname).st_mtime
-        #print( "updated", self.oldname, "mod time:". gt, datetime.datetime.fromtimestamp( gt) )
-        
-        print( "touch" )
 
     def trim( self, value ):
         print( "trim" )

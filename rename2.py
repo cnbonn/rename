@@ -101,27 +101,30 @@ def savefiles(args, filelist):
     verb = False
     prnt = False
     inter = False
-    if arg in [ "-v" , "--verbose"]:
+    if args in [ "-v" , "--verbose"]:
         verb = True
-    elif arg in [ "-p", "--print"]:
+    elif args in [ "-p", "--print"]:
         prnt = True
-    elif arg in [ "-i", "--interactive"]:
+    elif args in [ "-i", "--interactive"]:
         inter = True
 
     #go though files and rename 
     for files in filelist:
         if verb == True:
-            files.printfile()            
+            files.printfile() #print files to screen
             files.renamefile()
         elif prnt == True:
-            file.printfile()
+            file.printfile() # print files to screen
         elif inter == True:
-            files.printfile()
-            choice = input( "do you want to make this change? (y/n): " )
-                if choice == "y":
+            files.printfile() #print file to screen
+            correct = False;  #set flag to false
+            while correct == False:
+                choice = input( "do you want to make this change? (y/n): " )
+                if choice == 'y':
                     files.renamefile()
-                elif choice == "n":
-                    continue
+                    correct = True # set flag to true
+                elif choice == 'n':
+                    correct = True #set flag to true
                 else:
                     print( "invalid choice. please try again " )
             
