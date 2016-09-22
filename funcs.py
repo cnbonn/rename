@@ -11,6 +11,13 @@ class Fileinfo:
         self.originalstamp = os.path.getmtime( filename )
         self.newstamp = os.path.getmtime( filename )
 
+    #defined string representation
+    def __str__(self):
+        return "Old file name: " + self.oldname + \
+            "\nNew file name: " + self.newname + \
+            "\nOriginal time stamp: " + str(self.originalstamp) + \
+            "\nNew time stamp: " + str(self.newstamp)
+
     def countstring( self, newstring, filenum ):
         '''renames files in sequence using countstring
             #'s in count string become numbers'''
@@ -68,6 +75,7 @@ class Fileinfo:
 
     def replace( self, oldstring, newstring):
         '''replaces old strings with new strings given by the user'''
+        self.newname = re.sub(oldstring, newstring, self.newname)
         print( "replace" )
 
     def touch( self ):
@@ -78,7 +86,10 @@ class Fileinfo:
 
 
     def trim( self, value ):
-        print( "trim" )
+        if value > 0:
+            self.newname = self.newname[n:]
+        else:
+            self.newname = self.newname[:n]
 
     def upper( self ):
         self.newname = self.newname.upper()
