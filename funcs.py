@@ -8,15 +8,15 @@ class Fileinfo:
         ''' initilise file by setting oldname and new name to the file name'''
         self.oldname = filename
         self.newname = filename
-        self.originalstamp = os.path.getmtime( filename )
-        self.newstamp = os.path.getmtime( filename )
+        self.accesstime = os.stat(self.oldname).st_atime
+        self.modtime = os.stat(self.oldname).st_mtime
 
     #defined string representation
     def __str__(self):
         return "Old file name: " + self.oldname + \
             "\nNew file name: " + self.newname + \
-            "\nOriginal time stamp: " + str(self.originalstamp) + \
-            "\nNew time stamp: " + str(self.newstamp)
+            "\nOriginal time stamp: " + str(self.accesstime) + \
+            "\nNew time stamp: " + str(self.modtime)
 
     def countstring( self, newstring, filenum ):
         '''renames files in sequence using countstring
@@ -49,41 +49,60 @@ class Fileinfo:
 
     def printfilestamp( self ):
         '''prints file time stamp and changed timestamp'''
-        if self.originalstamp != self.newstamp:
-            print( 'original stamp', self.originalstamp, datetime.datetime.fromtimestamp( self.originalstamp ))
-            print( 'updated stamp', self.newstamp, datetime.datetime.fromtimestamp( self.newstamp ))
+        if self.accesstime != self.modtime:
+            print( 'original stamp', self.accesstime, datetime.datetime.fromtimestamp( self.accesstime ))
+            print( 'updated stamp', self.modtime, datetime.datetime.fromtimestamp( self.modtime ))
 
     def updatedatestamp( self, stamp ):
-        ''' updates the date stame of the file to the user given date'''
-        print( "update datestamp" )
-        day   = stamp[0:2]
-        month = stamp[1:3]
-        year  = stamp[4:]
-        print( "day: ", day , " month: ", month , " year: ", year) 
-    
+        ''' updates the date stame of the file to the user given date'''       
+
+        #strip from new
+        newdate = datetime.datetime.strptime(stamp, "%d%m%Y")
+        #strip from old
+        ft = os.path.getmtime(self.oldname)
+        ut = datetime.datetime.fromtimestamp( ft )
+        olddate = datetime.datetime.strptime( str(ut), "%Y-%m-%d %H:%M:%S.%f" )
+        #create new stamp
+        newdate = datetime.datetime(newdate.year, newdate.month, newdate.day, olddate.hour, olddate.minute, olddate.second)
+        #save
+        os.utime(self.oldname, (newdate.timestamp(), newdate.timestamp() ) )
+ 
     def updatetimestamp( self, stamp ):
         '''updates the timestamp of the file to the user given time'''
-        print( "update timestamp" )
-        hour = stamp[0:2]
-        minute = stamp[1:3]
-        second = stamp[3:]
-        print( "hour: " , hour, " minute: " , minute, " second: " , second )
+
+        #strip needed from new
+        newtime = datetime.datetime.strptime(stamp, '%H%M%S')
+        #proces old
+        ft = os.path.getmtime(self.oldname)
+        ut = datetime.datetime.fromtimestamp( ft )
+        oldtime = datetime.datetime.strptime( str(ut), "%Y-%m-%d %H:%M:%S.%f" )
+        #create new stamp
+        newtime = datetime.datetime(oldtime.year, oldtime.month, oldtime.day, newtime.hour, newtime.minute, newtime.second)
+        #save
+        os.utime(self.oldname, (newtime.timestamp(), newtime.timestamp() ) )
+
+    def updatestamp( self ):
+        ''' updates the timedate stamp of the file'''
+        print('update stamp')
+        #os.utime( self.newname, ( self.originalstamp.timestamp(), self.oldstamp.timestamp() ) )
 
     def renamefile( self ):
         ''' renames the file with the given new name'''
         os.rename( self.oldname, self.newname )
+        #updatestamp()
 
     def replace( self, oldstring, newstring):
         '''replaces old strings with new strings given by the user'''
         self.newname = re.sub(oldstring, newstring, self.newname)
 
     def touch( self ):
-        #get current time
-        ct = datetime.datetime.now()
-        #save current time to file
-        os.utime( self.oldname, (ct.timestamp(), ct.timestamp() ) )
+        ''' touch file, update time and date to current time and date'''
+        if os.path.exists(self.oldname):
+            os.utime(self.oldname, None)
+        
 
     def trim( self, value ):
+        ''' trim values off of the begging or end of the filename'''
         if value > 0:
             self.newname = self.newname[value:]
         else:
@@ -91,4 +110,5 @@ class Fileinfo:
             self.newname = fileParts[0][:value] + '.' + fileParts[1]
 
     def upper( self ):
+        ''' make the file uppercase'''
         self.newname = self.newname.upper()
