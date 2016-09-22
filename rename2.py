@@ -69,29 +69,17 @@ def runoptions(args, filelist):
         deletefiles(args, filelist)
         quit()    # exit program
     
-<<<<<<< HEAD
     for index, files in enumerate(filelist):
         trimIndex = 0
         replaceIndex = 0
         for arg in sys.argv:
-=======
-    for index, files in enumerate(filelist):  #go though files
-        for arg in sys.argv:                  #go though arguments
->>>>>>> b1b38ca0874b2e4080d69903b680256861ab61e6
             if arg in [ "-l", "--lower"]:
                 files.lower()
             elif arg in [ "-u", "--upper"]:
                 files.upper()
             elif arg in [ "-t", "--trim"]:
-<<<<<<< HEAD
                 files.trim(args.trim[trimIndex])
                 trimIndex = trimIndex + 1
-=======
-                #files.trim( args.trim )
-
-                #need to create increment system                
-                print( "trim: ", args.trim[0] )
->>>>>>> b1b38ca0874b2e4080d69903b680256861ab61e6
             elif arg in [ "-r", "--replace" ]:
                 files.replace(str(args.replace[replaceIndex][0]), str(args.replace[replaceIndex][1]))
                 replaceIndex = replaceIndex + 1  
