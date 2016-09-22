@@ -123,7 +123,12 @@ def savefiles(args, filelist):
 def deletefiles(args, filelist):
     ''' delete functionality will hold print options '''
     for files in filelist:
-        if args.interactive:
+        if args.verbose:
+            files.printfile() #printfiles to screen
+            files.deletefile()
+        elif args.print: #print
+            files.printfile()
+        elif args.interactive:
             correct = False
             while correct == False:
                 files.printfile()
