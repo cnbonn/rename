@@ -76,7 +76,6 @@ class Fileinfo:
     def replace( self, oldstring, newstring):
         '''replaces old strings with new strings given by the user'''
         self.newname = re.sub(oldstring, newstring, self.newname)
-        print( "replace" )
 
     def touch( self ):
         #get current time
@@ -84,12 +83,12 @@ class Fileinfo:
         #save current time to file
         os.utime( self.oldname, (ct.timestamp(), ct.timestamp() ) )
 
-
     def trim( self, value ):
         if value > 0:
-            self.newname = self.newname[n:]
+            self.newname = self.newname[value:]
         else:
-            self.newname = self.newname[:n]
+            fileParts = self.newname.split('.')
+            self.newname = fileParts[0][:value] + '.' + fileParts[1]
 
     def upper( self ):
         self.newname = self.newname.upper()

@@ -72,18 +72,19 @@ def runoptions(args, filelist):
         return
     
     for index, files in enumerate(filelist):
+        trimIndex = 0
+        replaceIndex = 0
         for arg in sys.argv:
             if arg in [ "-l", "--lower"]:
                 files.lower()
             elif arg in [ "-u", "--upper"]:
                 files.upper()
             elif arg in [ "-t", "--trim"]:
-               # files.trim()
-
-                #need to create increment system                
-                print( "trim: ", args.trim )
+                files.trim(args.trim[trimIndex])
+                trimIndex = trimIndex + 1
             elif arg in [ "-r", "--replace" ]:
-                files.replace(str(args.replace[0]), str(args.replace[1]))
+                files.replace(str(args.replace[replaceIndex][0]), str(args.replace[replaceIndex][1]))
+                replaceIndex = replaceIndex + 1  
             elif arg in ["-n", "--number" ]:
                 files.countstring( str(args.number), index )
             elif arg in [ "-dt", "--touch" ]:
