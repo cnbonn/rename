@@ -1,4 +1,5 @@
 import argparse, os, glob, re, sys
+from funcs import *
 
 
 def main():
@@ -30,7 +31,8 @@ def cmdLineParse():
     parser.add_argument('-t', "--trim", type=int, action='append',  metavar='N',
                                         help='positive n: trim n chars from the start of each filename\n \
                                               negative n: trim n chars from the end of each filename')
-    parser.add_argument("-r", "--replace", nargs=2, type=str, action='append', metavar=('oldstring','newstring'),
+    parser.add_argument('-r', "--replace", nargs=2, type=str,# action='append', this was nesting list in a list
+                                        metavar=('oldstring','newstring'),
                                         help='replace old string with newstring in filenames. strings \
                                               are treated as regular expressions (and generally qouted)')
     parser.add_argument("-n", "--number", nargs=1, type=str, action='store', metavar='countstring',
@@ -52,6 +54,10 @@ def cmdLineParse():
     print( argorder )
     #get files from directory
     filenames = filesys(args)
+    #populate FileInfo object
+    fileObject = Fileinfo(filenames[0])
+    print("File info: \n")
+    print(fileObject)
     #run options
     runoptions(args, argorder, filenames)
     
@@ -66,16 +72,21 @@ def runoptions(args, argorder, filenames):
         print("delete")
         deletefile(filenames)
         return
-
+    #initialize class instance
+    fileObject = Fileinfo(filenames[0])
     #go though argorder and test for cases
     for arg in argorder:
         if arg in [ "-l", "--lower"]:
+            fileObject.lower()
             print("lower")
         elif arg in [ "-u", "--upper"]:
+            fileObject.upper()
             print("upper")
         elif arg in [ "-t", "--trim"]:
             print("trim")
         elif arg in [ "-r", "--replace" ]:
+            print(args.replace)
+            fileObject.replace(args.replace[0], args.replace[1])
             print("replace")
         elif arg in ["-n", "--number" ]:
             newstring = args.number
@@ -88,7 +99,8 @@ def runoptions(args, argorder, filenames):
             print("date")
         elif arg in [ "-T", "--time" ]:
             print("time")
-    
+
+    fileObject.renamefile()
 
 
 
