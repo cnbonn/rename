@@ -1,9 +1,34 @@
+'''
+ Program: File Renaming
+ Authors: Charles Bonn, Matthew De Young
+ Class:   CSC 461 Programming Languages
+ Instructor: Dr. Weiss
+ Date: 9/22/2015
+ Description: Command line instructions are processed for specific actions related
+              to renaming files in the current directory, and the details of those actions
+              may be displayed while they are performed if specified by user input.
+ Input:  Command line arguments
+ Output: Alterations to files are made as specified
+ Usage:  Renaming files based on specified arguments of:
+         -h --help -v --verbose -i -- interactive -l --lower -u --upper -t n --trim n -r "oldstring" "newstring" 
+         --replace "oldstring" "newstring" -n "countstring" --number "countstring -p --print -d --delete 
+         -dt --touch -DDMMYYYY --date DDMMYYYY -T HHMMSS --time HHMMSS files[]
+'''
 import argparse, os, glob, re, sys
 
 from funcs import Fileinfo
 
 def main():
-    '''main function of the program. runs main scripts'''
+    '''Runs the main scripts for the program.
+        Description:
+            The command line input is processed to generate a collection of argument data. A file list is then
+            compiled for the specified arguments, and each file name undergoes the specified operations.
+            Alterations are then saved to the directory if specified.
+        Arguments:
+            None
+        Return Values:
+            None
+        '''
     args = cmdLineParse()
 
     filelist = filesys( args )
@@ -14,7 +39,15 @@ def main():
 
 
 def cmdLineParse():
-    '''cmd line argument parser '''
+    '''Command Line Argument Parser.
+        Description:
+            Creating an instance of ArgumentParser, valid inputs are specified with any group specifications.
+            Once all arguments are added, the argument list is returned for use by the program.
+        Arguments:
+            None
+        Return Values:
+            args: Collection of arguments specified
+        '''
     #parse description
     parser = argparse.ArgumentParser(description="file rename application")
 
@@ -59,10 +92,18 @@ def cmdLineParse():
     
     return args    
 
-    
 def runoptions(args, filelist):
-    '''runs cmd line options given by the user. runs the cmd line arguments
-        in the order given by the user'''
+    '''Runs command line options specified by the user in the order given.
+        Description:
+            Initially checks if the delete option was specified, and shortcircuits evaluation if so by performing the
+            operation. Otherwise the list of specified arguments is parsed in order and the specified operations are
+            performed.
+        Arguments:
+            args: list of command line arguments
+            filelist: list of files to operate upon
+        Return Values:
+          None
+        '''
     
     #seperate delete case 
     if args.delete:
@@ -95,7 +136,16 @@ def runoptions(args, filelist):
 
 
 def savefiles(args, filelist):
-    ''' goes though the list of files and saves them with there new name.'''
+    '''Performs the renaming as specified by the user.
+        Description:
+            Based on the specified output type, from direct renaming to getting confirmation at each potential 
+            renaming operation.
+        Arguments:
+            args: list of command line arguments
+            filelist: list of files to operate upon
+        Return Values:
+            None
+        '''
     #go though files and rename 
     for files in filelist:
         if args.verbose:  #verbose
@@ -123,6 +173,16 @@ def savefiles(args, filelist):
            
 def deletefiles(args, filelist):
     ''' delete functionality will hold print options '''
+    '''Deletes files with optional output.
+        Description:
+            Performs file deletions, with verbose and interactive options to ensure the user does not delete
+            desired files.
+        Arguments:
+            args: list of command line arguments
+            filelist: list of files to operate upon
+        Return Values:
+          None
+        '''
     for files in filelist:
         if args.verbose:
             files.printfile() #printfiles to screen
@@ -143,8 +203,15 @@ def deletefiles(args, filelist):
                     print( "invalid choice please try again" )
     
 def filesys(args):
-    '''searches the directory for files that will be changed'''
-
+    '''Searches the directory for the specified files to be changed.
+        Description:
+            Performs globbing upon the specified file names, then ensures that the files exist before returning
+            the collection.
+        Arguments:
+            args: list of command line arguments
+        Return Values:
+            filelist: list of files to operate upon
+        '''
     #initilise files
     files = args.filename
 
