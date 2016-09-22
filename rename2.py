@@ -14,7 +14,7 @@ def main():
 
 
 def cmdLineParse():
-    '''cmaasdfd line argument parser '''
+    '''cmd line argument parser '''
     #parse description
     parser = argparse.ArgumentParser(description="file rename application")
 
@@ -66,34 +66,30 @@ def runoptions(args, filelist):
     
     #seperate delete case 
     if args.delete:
-        print("delete")
-        for files in filelist:
-            files.deletefile()
-        return
+        deletefiles(args, filelist)
+        quit()    # exit program
     
-    for index, files in enumerate(filelist):
-        for arg in sys.argv:
+    for index, files in enumerate(filelist):  #go though files
+        for arg in sys.argv:                  #go though arguments
             if arg in [ "-l", "--lower"]:
                 files.lower()
             elif arg in [ "-u", "--upper"]:
                 files.upper()
             elif arg in [ "-t", "--trim"]:
-               # files.trim()
+                #files.trim( args.trim )
 
                 #need to create increment system                
-                print( "trim: ", args.trim )
+                print( "trim: ", args.trim[0] )
             elif arg in [ "-r", "--replace" ]:
                 files.replace(str(args.replace[0]), str(args.replace[1]))
             elif arg in ["-n", "--number" ]:
                 files.countstring( str(args.number), index )
             elif arg in [ "-dt", "--touch" ]:
-                print("touch")
                 files.touch()
             elif arg in [ "-D", "--date" ]:
                 files.updatedatestamp(args.date)
             elif arg in [ "-T", "--time" ]:
                 files.updatetimestamp(args.time)
-                print("time")
 
 
 
@@ -109,7 +105,7 @@ def savefiles(args, filelist):
             files.printfile() # print files to screen
 
         elif args.interactive: # interactive
-            correct = False;  #set flag to false
+            correct = False  #set flag to false
             while correct == False:
                 files.printfile() #prints file to screen
                 choice = input( "do you want to make this change? (y/n): " )
@@ -123,7 +119,22 @@ def savefiles(args, filelist):
 
         else:
             files.renamefile()
-            
+           
+def deletefiles(args, filelist):
+    ''' delete functionality will hold print options '''
+    for files in filelist:
+        if args.interactive:
+            correct = False
+            while correct == False:
+                files.printfile()
+                choice = input( "do you want to delete (y/n)?")
+                if choice == 'y':
+                    files.deletefile()
+                    correct = True # set flag to true
+                elif choice == 'n':
+                    correct = True #set flag to true
+                else: 
+                    print( "invalid choice please try again" )
     
 def filesys(args):
     '''searches the directory for files that will be changed'''
