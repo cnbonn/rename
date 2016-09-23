@@ -1,12 +1,53 @@
+'''
+ Program: File Renaming
+ Authors: Charles Bonn, Matthew De Young
+ Class:   CSC 461 Programming Languages
+ Instructor: Dr. Weiss
+ Date: 9/22/2015
+ Description: Command line instructions are processed for specific actions related
+              to renaming files in the current directory, and the details of those actions
+              may be displayed while they are performed if specified by user input.
+ Input:  Command line arguments
+ Output: Alterations to files are made as specified
+ Usage:  Renaming files based on specified arguments of:
+         -h --help -v --verbose -i -- interactive -l --lower -u --upper -t n --trim n -r "oldstring" "newstring" 
+         --replace "oldstring" "newstring" -n "countstring" --number "countstring -p --print -d --delete 
+         -dt --touch -DDMMYYYY --date DDMMYYYY -T HHMMSS --time HHMMSS files[]
+'''
 import argparse, os, glob, re, sys
-from funcs import *
 
+from funcs import Fileinfo
 
 def main():
-    cmdLineParse()
-    
+    '''Runs the main scripts for the program.
+        Description:
+            The command line input is processed to generate a collection of argument data. A file list is then
+            compiled for the specified arguments, and each file name undergoes the specified operations.
+            Alterations are then saved to the directory if specified.
+        Arguments:
+            None
+        Return Values:
+            None
+        '''
+    args = cmdLineParse()
+
+    filelist = filesys( args )
+
+    runoptions( args, filelist )
+
+    savefiles( args, filelist )
+
+
 def cmdLineParse():
-    '''cmd line argument parser '''
+    '''Command Line Argument Parser.
+        Description:
+            Creating an instance of ArgumentParser, valid inputs are specified with any group specifications.
+            Once all arguments are added, the argument list is returned for use by the program.
+        Arguments:
+            None
+        Return Values:
+            args: Collection of arguments specified
+        '''
     #parse description
     parser = argparse.ArgumentParser(description="file rename application")
 
@@ -31,8 +72,7 @@ def cmdLineParse():
     parser.add_argument('-t', "--trim", type=int, action='append',  metavar='N',
                                         help='positive n: trim n chars from the start of each filename\n \
                                               negative n: trim n chars from the end of each filename')
-    parser.add_argument('-r', "--replace", nargs=2, type=str,# action='append', this was nesting list in a list
-                                        metavar=('oldstring','newstring'),
+    parser.add_argument("-r", "--replace", nargs=2, type=str, action='append', metavar=('oldstring','newstring'),
                                         help='replace old string with newstring in filenames. strings \
                                               are treated as regular expressions (and generally qouted)')
     parser.add_argument("-n", "--number", nargs=1, type=str, action='store', metavar='countstring',
@@ -41,8 +81,8 @@ def cmdLineParse():
     #options that can not occur multiple times
     parser.add_argument("-d", "--delete", action="store_true", help='delete files')
     parser.add_argument("-dt", "--touch", action="store_true", help='\"touch\" files (update date/time stamp to current date/time)')
-    parser.add_argument("-D", "--date", metavar='DDMMYYY', type=int, help='change file datestamps')
-    parser.add_argument("-T", "--time", metavar='HHMMSS', type=int,  help='change file timestamps')
+    parser.add_argument("-D", "--date", metavar='DDMMYYY', type=str, help='change file datestamps')
+    parser.add_argument("-T", "--time", metavar='HHMMSS', type=str,  help='change file timestamps')
 
     #parse options required
     parser.add_argument('filename', nargs='+',   metavar='filename', help='filename(s) to perform operations on')
@@ -50,155 +90,145 @@ def cmdLineParse():
     #compile argument list
     args = parser.parse_args()
     
-    argorder = sys.argv
-    print( argorder )
-    #get files from directory
-    filenames = filesys(args)
-    #populate FileInfo object
-    fileObject = Fileinfo(filenames[0])
-    print("File info: \n")
-    print(fileObject)
-    #run options
-    runoptions(args, argorder, filenames)
-    
+    return args    
 
-    
-def runoptions(args, argorder, filenames):
-    '''runs cmd line options given by the user. runs the cmd line arguments
-        in the order given by the user'''
+def runoptions(args, filelist):
+    '''Runs command line options specified by the user in the order given.
+        Description:
+            Initially checks if the delete option was specified, and shortcircuits evaluation if so by performing the
+            operation. Otherwise the list of specified arguments is parsed in order and the specified operations are
+            performed.
+        Arguments:
+            args: list of command line arguments
+            filelist: list of files to operate upon
+        Return Values:
+          None
+        '''
     
     #seperate delete case 
     if args.delete:
-        print("delete")
-        deletefile(filenames)
-        return
-    #initialize class instance
-    fileObject = Fileinfo(filenames[0])
-    #go though argorder and test for cases
-    for arg in argorder:
-        if arg in [ "-l", "--lower"]:
-            fileObject.lower()
-            print("lower")
-        elif arg in [ "-u", "--upper"]:
-            fileObject.upper()
-            print("upper")
-        elif arg in [ "-t", "--trim"]:
-            print("trim")
-        elif arg in [ "-r", "--replace" ]:
-            print(args.replace)
-            fileObject.replace(args.replace[0], args.replace[1])
-            print("replace")
-        elif arg in ["-n", "--number" ]:
-            newstring = args.number
-            print("number", newstring)
-            countsrting(filenames, newstring, args) 
-        elif arg in [ "-dt", "--touch" ]:
-            print("touch")
-            touch( filenames )
-        elif arg in [ "-D", "--date" ]:
-            print("date")
-        elif arg in [ "-T", "--time" ]:
-            print("time")
-
-    fileObject.renamefile()
-
-
-
-
-'''
-    print( " *****************************")
+        deletefiles(args, filelist)
+        quit()    # exit program
     
-    print(args)
+    for index, files in enumerate(filelist):
+        trimIndex = 0
+        replaceIndex = 0
+        for arg in sys.argv:
+            if arg in [ "-l", "--lower"]:
+                files.lower()
+            elif arg in [ "-u", "--upper"]:
+                files.upper()
+            elif arg in [ "-t", "--trim"]:
+                files.trim(args.trim[trimIndex])
+                trimIndex = trimIndex + 1
+            elif arg in [ "-r", "--replace" ]:
+                files.replace(str(args.replace[replaceIndex][0]), str(args.replace[replaceIndex][1]))
+                replaceIndex = replaceIndex + 1  
+            elif arg in ["-n", "--number" ]:
+                files.countstring( str(args.number), index )
+            elif arg in [ "-dt", "--touch" ]:
+                files.touch()
+            elif arg in [ "-D", "--date" ]:
+                files.updatedatestamp(args.date)
+            elif arg in [ "-T", "--time" ]:
+                files.updatetimestamp(args.time)
 
-    print( " ****************************" )
 
-    for arg in vars(args):
-        print (arg, getattr(args,arg))
 
-    print( "*****************************")
-'''
-   
+def savefiles(args, filelist):
+    '''Performs the renaming as specified by the user.
+        Description:
+            Based on the specified output type, from direct renaming to getting confirmation at each potential 
+            renaming operation.
+        Arguments:
+            args: list of command line arguments
+            filelist: list of files to operate upon
+        Return Values:
+            None
+        '''
+    #go though files and rename 
+    for files in filelist:
+        if args.verbose:  #verbose
+            files.printfile() #print files to screen
+            files.renamefile()
+
+        elif args.print:  # print
+            files.printfile() # print files to screen
+
+        elif args.interactive: # interactive
+            correct = False  #set flag to false
+            while correct == False:
+                files.printfile() #prints file to screen
+                choice = input( "do you want to make this change? (y/n): " )
+                if choice == 'y':
+                    files.renamefile()
+                    correct = True # set flag to true
+                elif choice == 'n':
+                    correct = True #set flag to true
+                else:
+                    print( "invalid choice. please try again " )
+
+        else:
+            files.renamefile()
+           
+def deletefiles(args, filelist):
+    ''' delete functionality will hold print options '''
+    '''Deletes files with optional output.
+        Description:
+            Performs file deletions, with verbose and interactive options to ensure the user does not delete
+            desired files.
+        Arguments:
+            args: list of command line arguments
+            filelist: list of files to operate upon
+        Return Values:
+          None
+        '''
+    for files in filelist:
+        if args.verbose:
+            files.printfile() #printfiles to screen
+            files.deletefile()
+        elif args.print: #print
+            files.printfile()
+        elif args.interactive:
+            correct = False
+            while correct == False:
+                files.printfile()
+                choice = input( "do you want to delete (y/n)?")
+                if choice == 'y':
+                    files.deletefile()
+                    correct = True # set flag to true
+                elif choice == 'n':
+                    correct = True #set flag to true
+                else: 
+                    print( "invalid choice please try again" )
+    
 def filesys(args):
-    '''searches the directory for files that will be changed'''
-
+    '''Searches the directory for the specified files to be changed.
+        Description:
+            Performs globbing upon the specified file names, then ensures that the files exist before returning
+            the collection.
+        Arguments:
+            args: list of command line arguments
+        Return Values:
+            filelist: list of files to operate upon
+        '''
     #initilise files
     files = args.filename
+
+    filelist = []
    
+    #go tough files and save the ones that match the naming convention 
     for s in files:
         for filename in glob.glob(s):
-            print( filename, end = ' ' )    
+            filelist.append( Fileinfo( filename ) )
 
-    print( '\n' )
+    if not filelist:
+        print( "no files matching: " , files , " in directory" )
+        quit()
 
-    return files
-
-
-def deletefile( filename ):
-    ''' deletes specified file '''
-    for files in filename:
-        os.remove( files )
-
-def renamefile( oldfilename, newfilename, args):
-    '''renames current file to old file. Has options for print
-        verbose and interactive modes'''
-    #rename flag
-    rename = True
-
-    if args.print == True:  #print option
-        rename = False
-        printfile( oldfilename, newfilename)
-        
-    elif args.verbose == True: #verbose option
-        printfile( oldfilename, newfilename)
-
-    elif args.interactive == True: #interactive option
-        print("Do you want to rename ", oldfilename, " to ", newfilename, "? (y/n)")
-        userinput = input("choice: ")
-        if userinput == "y":
-            rename = True
-        elif userinput == "n":
-            rename = False
-        else:
-            print(" invalid option ")
-
-    # if rename flag is true, change the file name 
-    if rename == True:
-        os.rename( oldfilename, newfilename)
-    
-def  printfile( oldfilename, newfilename ):
-    ''' prints Old filename and new filename'''
-    print("Old Filename: ", oldfilename)
-    print("New Filename: ", newfilename)
-
-def regexparse():
-    '''handles regex expressions'''
+    return filelist
 
 
-def countstring(filename, newstring, args):
-    ''' count string operation. renames files with replacing ## with numbers. i.e ## is 01, 02...'''
 
-    #get count of number of # in newstring
-    count = str(newstring).count("#") 
-
-    #initilize count number
-    num = 1
-
-    #run though files and assign a number to each one
-    for files in filename:
-        #compile new name
-        newname = re.sub("#"*count, str(num).zfill(count), newstring[0])
-        renamefile( files, newname, args)
-        num += 1
-
-def modifydate():
-    print("modifydate")
-
-def modifytime():    
-    print("modifytime")
-    
-def touch(filename):
-    for files in filename:
-        filetime = os.path.getmtime( files )
-        print(filetime)
 if __name__=='__main__':
     main()
